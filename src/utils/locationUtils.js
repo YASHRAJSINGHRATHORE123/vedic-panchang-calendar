@@ -14,7 +14,11 @@ export async function getUserLocation() {
         
         try {
           // Reverse geocoding using a free API (OpenStreetMap Nominatim)
-          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`);
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`, {
+            headers: {
+              'User-Agent': 'VedicPanchangCalendar/1.0 (Contact: support@example.com)'
+            }
+          });
           const data = await response.json();
           const city = data.address.city || data.address.town || data.address.state || "Unknown Location";
           

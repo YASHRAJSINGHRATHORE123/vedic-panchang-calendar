@@ -1,7 +1,23 @@
-import { getJulianDay, getSunLongitude, getMoonLongitude, getSunriseSunset } from './astronomyEngine.js';
+import { getJulianDay, getSunLongitude, getMoonLongitude, getSunriseSunset, getAyanamsa } from './astronomyEngine.js';
 import { CONFIG } from '../data/config.js';
 
-const panchangCache = new Map();
+class BoundedCache {
+  constructor(limit = 50) {
+    this.cache = new Map();
+    this.limit = limit;
+  }
+  get(key) { return this.cache.get(key); }
+  has(key) { return this.cache.has(key); }
+  set(key, value) {
+    if (this.cache.size >= this.limit) {
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
+}
+
+const panchangCache = new BoundedCache(50);
 
 /**
  * Calculate Panchang elements for a given date and location
@@ -23,8 +39,13 @@ export function calculatePanchang(date, lat, lon) {
   const calcDate = sunrise ? new Date(sunrise) : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 6, 0, 0);
   
   const jd = getJulianDay(calcDate);
-  const sunLong = getSunLongitude(jd);
-  const moonLong = getMoonLongitude(jd);
+  const ayanamsa = getAyanamsa(jd);
+  
+  let sunLong = getSunLongitude(jd) - ayanamsa;
+  if (sunLong < 0) sunLong += 360.0;
+  
+  let moonLong = getMoonLongitude(jd) - ayanamsa;
+  if (moonLong < 0) moonLong += 360.0;
   
   // 1. Tithi (Lunar Day)
   // Difference between Moon and Sun longitude. Each Tithi is 12 degrees.

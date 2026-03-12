@@ -18,6 +18,15 @@ export function getJulianDay(date) {
 }
 
 /**
+ * Calculate Lahiri Ayanamsa approximation
+ * @param {number} jd Julian Day
+ * @returns {number} Ayanamsa in degrees
+ */
+export function getAyanamsa(jd) {
+  return 23.85 + (jd - 2451545.0) * (50.290966 / 3600.0);
+}
+
+/**
  * Calculate Sun's geocentric ecliptic longitude
  * @param {number} jd Julian Day
  * @returns {number} Longitude in degrees (0-360)
@@ -65,8 +74,8 @@ export function getSunriseSunset(date, lat, lon) {
   const d = jd - 2451545.0 + 0.0008;
   
   // Mean solar noon
-  const n = Math.floor(d - lon / 360.0 + 0.5);
-  const jStar = 2451545.0 - 0.0008 + lon / 360.0 + n;
+  const n = Math.floor(d + lon / 360.0 + 0.5);
+  const jStar = 2451545.0 - 0.0008 - lon / 360.0 + n;
   
   const m = (357.5291 + 0.98560028 * (jStar - 2451545.0)) % 360.0;
   const c = 1.9148 * Math.sin(m * D2R) + 0.0200 * Math.sin(2 * m * D2R) + 0.0003 * Math.sin(3 * m * D2R);

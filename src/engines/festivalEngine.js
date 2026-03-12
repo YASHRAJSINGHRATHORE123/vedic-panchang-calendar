@@ -1,3 +1,16 @@
+import { getJulianDay, getSunLongitude, getMoonLongitude } from './astronomyEngine.js';
+
+// Helper to get Tithi at a specific hour (local time)
+function getTithiAtTime(date, hours, minutes) {
+  const calcDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hours, minutes, 0);
+  const jd = getJulianDay(calcDate);
+  let sunLong = getSunLongitude(jd);
+  let moonLong = getMoonLongitude(jd);
+  let diff = moonLong - sunLong;
+  if (diff < 0) diff += 360.0;
+  return Math.floor(diff / 12.0);
+}
+
 /**
  * Detects major Hindu festivals based on Panchang data.
  * Improved logic using Sun Rashi and Tithi for better accuracy.
@@ -7,32 +20,36 @@
  * @returns {string|null} Festival name or null
  */
 export function detectFestival(panchangData, date) {
-  const tithi = panchangData.tithi.index; // 0-29
   const sunRashi = panchangData.sunRashi.index; // 0-11
   
-  // Diwali: Amavasya (29) of Kartika (Sun in Libra - 6)
-  if (tithi === 29 && sunRashi === 6) {
+  // Diwali: Amavasya (29) active during Pradosh (evening, approx 18:00)
+  const eveningTithi = getTithiAtTime(date, 18, 0);
+  if (eveningTithi === 29 && sunRashi === 6) {
     return "Diwali";
   }
   
-  // Holi: Purnima (14) of Phalguna (Sun in Aquarius - 10)
-  if (tithi === 14 && sunRashi === 10) {
+  // Holi: Purnima (14) active at evening (18:00)
+  if (eveningTithi === 14 && sunRashi === 10) {
     return "Holi";
   }
+  
+  // Maha Shivratri: Chaturdashi (28) active at midnight (23:59)
+  const midnightTithi = getTithiAtTime(date, 23, 59);
+  if (midnightTithi === 28 && (sunRashi === 9 || sunRashi === 10)) {
+    return "Maha Shivratri";
+  }
+  
+  // Janmashtami: Ashtami (22) active at midnight (23:59)
+  if (midnightTithi === 22 && (sunRashi === 3 || sunRashi === 4)) {
+    return "Janmashtami";
+  }
+  
+  // For others, fallback to sunrise Tithi
+  const tithi = panchangData.tithi.index; // 0-29
   
   // Raksha Bandhan: Purnima (14) of Shravana (Sun in Cancer - 3)
   if (tithi === 14 && sunRashi === 3) {
     return "Raksha Bandhan";
-  }
-  
-  // Maha Shivratri: Chaturdashi (28) of Phalguna (Sun in Capricorn/Aquarius - 9/10)
-  if (tithi === 28 && (sunRashi === 9 || sunRashi === 10)) {
-    return "Maha Shivratri";
-  }
-  
-  // Janmashtami: Ashtami (22) of Bhadrapada (Sun in Cancer/Leo - 3/4)
-  if (tithi === 22 && (sunRashi === 3 || sunRashi === 4)) {
-    return "Janmashtami";
   }
   
   // Ram Navami: Navami (8) of Chaitra (Sun in Pisces/Aries - 11/0)
