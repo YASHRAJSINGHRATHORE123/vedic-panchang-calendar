@@ -1,9 +1,15 @@
 import { CONFIG } from '../data/config.js';
 
+export const FALLBACK_LOCATION = {
+  latitude: 26.9124,
+  longitude: 75.7873,
+  city: "Jaipur, India"
+};
+
 export async function getUserLocation() {
   return new Promise((resolve) => {
     if (!navigator.geolocation) {
-      resolve(CONFIG.defaultLocation);
+      resolve(FALLBACK_LOCATION);
       return;
     }
 
@@ -36,7 +42,7 @@ export async function getUserLocation() {
         }
       },
       () => {
-        resolve(CONFIG.defaultLocation);
+        resolve(FALLBACK_LOCATION);
       },
       { timeout: 5000 }
     );
