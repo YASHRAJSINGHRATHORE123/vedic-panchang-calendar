@@ -14,7 +14,7 @@ export async function getDailyHoroscope(rashiName, date) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-preview",
+      model: "gemini-3-flash-preview",
       contents: `What is the horoscope for ${rashiName} today?`,
       config: {
         systemInstruction: systemInstruction,

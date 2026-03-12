@@ -15,7 +15,7 @@ If they ask about festivals, refer to the data. If they ask about Muhurat (auspi
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-preview",
+      model: "gemini-3-flash-preview",
       contents: question,
       config: {
         systemInstruction: systemInstruction,
