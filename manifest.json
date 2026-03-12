@@ -1,0 +1,21 @@
+{
+  "name": "Panchang Smart Calendar",
+  "short_name": "Panchang",
+  "description": "Smart Hindu Calendar with Panchang and Muhurat",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/panchang192/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/seed/panchang512/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Panchang Smart Calendar",
+  "description": "A location-based Hindu calendar that calculates daily Panchang, festivals, and auspicious timings using astronomical algorithms.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
