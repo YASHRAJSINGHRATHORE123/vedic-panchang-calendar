@@ -1,5 +1,6 @@
 import { calculatePanchang } from '../engines/panchangEngine.js';
-import { detectFestival, getAuspiciousActivities } from '../engines/festivalEngine.js';
+import { detectFestival } from '../engines/festivalEngine.js';
+import { getAuspiciousActivities } from '../engines/muhuratEngine.js';
 import { formatTime, formatDate } from '../utils/dateUtils.js';
 
 export class PanchangUI {
@@ -8,6 +9,7 @@ export class PanchangUI {
   }
   
   update(date, location) {
+    if (!this.container) return;
     const panchang = calculatePanchang(date, location.latitude, location.longitude);
     const festival = detectFestival(panchang, date);
     const muhurats = getAuspiciousActivities(panchang);
@@ -67,11 +69,11 @@ export class PanchangUI {
           </div>
           <div class="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border-l-4 border-red-500">
             <span class="text-red-800 dark:text-red-300 font-medium">Rahu Kaal</span>
-            <span class="text-sm dark:text-gray-300">${formatTime(panchang.rahuKaal.start)} - ${formatTime(panchang.rahuKaal.end)}</span>
+            <span class="text-sm dark:text-gray-300">${panchang.rahuKaal.start ? formatTime(panchang.rahuKaal.start) + ' - ' + formatTime(panchang.rahuKaal.end) : 'N/A'}</span>
           </div>
           <div class="flex justify-between items-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border-l-4 border-emerald-500">
             <span class="text-emerald-800 dark:text-emerald-300 font-medium">Abhijit Muhurat</span>
-            <span class="text-sm dark:text-gray-300">${formatTime(panchang.abhijitMuhurat.start)} - ${formatTime(panchang.abhijitMuhurat.end)}</span>
+            <span class="text-sm dark:text-gray-300">${panchang.abhijitMuhurat.start ? formatTime(panchang.abhijitMuhurat.start) + ' - ' + formatTime(panchang.abhijitMuhurat.end) : 'N/A'}</span>
           </div>
         </div>
         

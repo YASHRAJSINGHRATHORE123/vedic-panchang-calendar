@@ -1,6 +1,7 @@
 import { askAIAssistant } from '../engines/aiEngine.js';
 import { calculatePanchang } from '../engines/panchangEngine.js';
-import { detectFestival, getAuspiciousActivities } from '../engines/festivalEngine.js';
+import { detectFestival } from '../engines/festivalEngine.js';
+import { getAuspiciousActivities } from '../engines/muhuratEngine.js';
 
 export class AIUI {
   constructor(containerId, inputId, submitId) {
@@ -10,10 +11,12 @@ export class AIUI {
     this.currentDate = new Date();
     this.location = null;
     
-    this.submitBtn.addEventListener('click', () => this.handleAsk());
-    this.input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') this.handleAsk();
-    });
+    if (this.submitBtn && this.input) {
+      this.submitBtn.addEventListener('click', () => this.handleAsk());
+      this.input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') this.handleAsk();
+      });
+    }
   }
   
   updateContext(date, location) {
@@ -42,13 +45,19 @@ export class AIUI {
       auspiciousActivities: muhurats
     };
     
-    // Ask AI
-    const answer = await askAIAssistant(question, contextData, this.currentDate, this.location);
-    
-    // Add AI message to UI
-    this.appendMessage('ai', answer);
-    this.submitBtn.disabled = false;
-    this.submitBtn.textContent = 'Ask';
+    try {
+      // Ask AI
+      const answer = await askAIAssistant(question, contextData, this.currentDate, this.location);
+      
+      // Add AI message to UI
+      this.appendMessage('ai', answer);
+    } catch (error) {
+      console.error("AI Error:", error);
+      this.appendMessage('ai', "I'm sorry, I couldn't process your request at the moment. Please try again later.");
+    } finally {
+      this.submitBtn.disabled = false;
+      this.submitBtn.textContent = 'Ask';
+    }
   }
   
   appendMessage(role, text) {

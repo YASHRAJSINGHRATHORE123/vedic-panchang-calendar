@@ -31,5 +31,10 @@ export const CONFIG = {
   karanaNames: [
     "Bava", "Balava", "Kaulava", "Taitila", "Gara", "Vanija", "Vishti",
     "Shakuni", "Chatushpada", "Naga", "Kintughna"
+  ],
+  rashiNames: [
+    "Aries (Mesha)", "Taurus (Vrishabha)", "Gemini (Mithuna)", "Cancer (Karka)",
+    "Leo (Simha)", "Virgo (Kanya)", "Libra (Tula)", "Scorpio (Vrishchika)",
+    "Sagittarius (Dhanu)", "Capricorn (Makara)", "Aquarius (Kumbha)", "Pisces (Meena)"
   ]
 };

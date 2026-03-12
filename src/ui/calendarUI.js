@@ -15,12 +15,16 @@ export class CalendarUI {
       "July", "August", "September", "October", "November", "December"
     ];
     
-    this.render();
+    if (this.container) {
+      this.render();
+    }
   }
   
   setLocation(location) {
     this.location = location;
-    this.renderGrid();
+    if (this.container) {
+      this.renderGrid();
+    }
   }
   
   prevMonth() {

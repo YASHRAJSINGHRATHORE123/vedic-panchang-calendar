@@ -10,14 +10,17 @@ const panchangCache = new Map();
  * @param {number} lon 
  */
 export function calculatePanchang(date, lat, lon) {
-  // We calculate at noon local time for general daily panchang
-  const calcDate = new Date(date);
-  calcDate.setHours(12, 0, 0, 0);
-  
-  const cacheKey = `${calcDate.getTime()}_${lat}_${lon}`;
+  const cacheKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}_${lat}_${lon}`;
   if (panchangCache.has(cacheKey)) {
     return panchangCache.get(cacheKey);
   }
+  
+  // 5. Sunrise & Sunset
+  const { sunrise, sunset } = getSunriseSunset(date, lat, lon);
+  
+  // CRITICAL FIX: Calculate Panchang at Sunrise (Hindu Calendar Rule)
+  // If sunrise is unavailable (e.g., polar regions), fallback to 6 AM local time
+  const calcDate = sunrise ? new Date(sunrise) : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 6, 0, 0);
   
   const jd = getJulianDay(calcDate);
   const sunLong = getSunLongitude(jd);
@@ -55,8 +58,12 @@ export function calculatePanchang(date, lat, lon) {
     kName = CONFIG.karanaNames[(karanaIndex - 1) % 7];
   }
   
-  // 5. Sunrise & Sunset
-  const { sunrise, sunset } = getSunriseSunset(date, lat, lon);
+  // Moon Rashi (Zodiac Sign)
+  const rashiIndex = Math.floor(moonLong / 30.0);
+  const rashiName = CONFIG.rashiNames[rashiIndex];
+
+  // Sun Rashi (Zodiac Sign)
+  const sunRashiIndex = Math.floor(sunLong / 30.0);
   
   // 6. Rahu Kaal
   // Depends on weekday and sunrise/sunset
@@ -93,6 +100,8 @@ export function calculatePanchang(date, lat, lon) {
     nakshatra: { index: nakshatraIndex, name: nakshatraName },
     yoga: { index: yogaIndex, name: yogaName },
     karana: { index: karanaIndex, name: kName },
+    rashi: { index: rashiIndex, name: rashiName },
+    sunRashi: { index: sunRashiIndex },
     sunrise,
     sunset,
     rahuKaal: { start: rahuKaalStart, end: rahuKaalEnd },

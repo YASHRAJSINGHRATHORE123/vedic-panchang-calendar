@@ -1,6 +1,6 @@
 /**
  * Astronomy Engine for simplified calculations of Sun and Moon positions.
- * Note: These are simplified formulas suitable for a web app, not high-precision ephemeris.
+ * Improved for better accuracy.
  */
 
 const D2R = Math.PI / 180.0;
@@ -12,6 +12,7 @@ const R2D = 180.0 / Math.PI;
  * @returns {number} Julian Day
  */
 export function getJulianDay(date) {
+  // Convert to UTC to avoid local timezone issues during JD calculation
   const time = date.getTime();
   return (time / 86400000.0) + 2440587.5;
 }
@@ -44,20 +45,23 @@ export function getMoonLongitude(jd) {
                     - 1.274 * Math.sin((l - 2 * d) * D2R) 
                     + 0.658 * Math.sin(2 * d * D2R) 
                     + 0.214 * Math.sin(2 * m * D2R) 
-                    - 0.186 * Math.sin(f * D2R);
+                    - 0.186 * Math.sin(f * D2R)
+                    - 0.114 * Math.sin(2 * f * D2R);
                     
   return (longitude + 360.0) % 360.0;
 }
 
 /**
- * Calculate Sunrise and Sunset times (simplified)
+ * Calculate Sunrise and Sunset times
  * @param {Date} date 
  * @param {number} lat Latitude
  * @param {number} lon Longitude
  * @returns {Object} { sunrise: Date, sunset: Date }
  */
 export function getSunriseSunset(date, lat, lon) {
-  const jd = getJulianDay(date);
+  // Calculate at 12:00 UTC for the given date to find transit
+  const calcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0));
+  const jd = getJulianDay(calcDate);
   const d = jd - 2451545.0 + 0.0008;
   
   // Mean solar noon
