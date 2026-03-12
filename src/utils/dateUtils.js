@@ -1,3 +1,5 @@
+import { getLanguage } from './i18n.js';
+
 /**
  * Formats a Date object to a readable time string.
  * @param {Date} date 
@@ -5,7 +7,8 @@
  */
 export function formatTime(date) {
   if (!date || isNaN(date.getTime())) return "--:--";
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const lang = getLanguage() === 'hi' ? 'hi-IN' : 'en-US';
+  return date.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
 }
 
 /**
@@ -15,7 +18,8 @@ export function formatTime(date) {
  */
 export function formatDate(date) {
   if (!date || isNaN(date.getTime())) return "--";
-  return date.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const lang = getLanguage() === 'hi' ? 'hi-IN' : 'en-US';
+  return date.toLocaleDateString(lang, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 /**

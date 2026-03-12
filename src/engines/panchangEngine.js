@@ -1,4 +1,4 @@
-import { getJulianDay, getSunLongitude, getMoonLongitude, getSunriseSunset, getAyanamsa } from './astronomyEngine.js';
+import { getJulianDay, getSunLongitude, getMoonLongitude, getSunriseSunset, getAyanamsa, getTithiEndTime } from './astronomyEngine.js';
 import { CONFIG } from '../data/config.js';
 
 class BoundedCache {
@@ -54,6 +54,7 @@ export function calculatePanchang(date, lat, lon) {
   const tithiIndex = Math.floor(diff / 12.0);
   const tithiName = CONFIG.tithiNames[tithiIndex];
   const paksha = tithiIndex < 15 ? "Shukla Paksha" : "Krishna Paksha";
+  const tithiEndTime = getTithiEndTime(calcDate, tithiIndex);
   
   // 2. Nakshatra (Lunar Mansion)
   // Moon longitude divided by 13 degrees 20 minutes (13.3333 degrees)
@@ -117,7 +118,7 @@ export function calculatePanchang(date, lat, lon) {
   }
 
   const result = {
-    tithi: { index: tithiIndex, name: tithiName, paksha: paksha },
+    tithi: { index: tithiIndex, name: tithiName, paksha: paksha, endTime: tithiEndTime },
     nakshatra: { index: nakshatraIndex, name: nakshatraName },
     yoga: { index: yogaIndex, name: yogaName },
     karana: { index: karanaIndex, name: kName },

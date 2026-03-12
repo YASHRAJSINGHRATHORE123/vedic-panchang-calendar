@@ -2,6 +2,8 @@ import { askAIAssistant } from '../engines/aiEngine.js';
 import { calculatePanchang } from '../engines/panchangEngine.js';
 import { detectFestival } from '../engines/festivalEngine.js';
 import { getAuspiciousActivities } from '../engines/muhuratEngine.js';
+import { t } from '../utils/i18n.js';
+import gsap from 'gsap';
 
 export class AIUI {
   constructor(containerId, inputId, submitId) {
@@ -34,14 +36,17 @@ export class AIUI {
     this.submitBtn.disabled = true;
     this.submitBtn.innerHTML = '<span class="animate-pulse">...</span>';
     
+    // Animate button
+    gsap.to(this.submitBtn, { scale: 0.95, duration: 0.1, yoyo: true, repeat: 1 });
+    
     // Get current panchang data for context
     const panchang = calculatePanchang(this.currentDate, this.location.latitude, this.location.longitude);
-    const festival = detectFestival(panchang, this.currentDate);
+    const festivals = detectFestival(panchang, this.currentDate);
     const muhurats = getAuspiciousActivities(panchang);
     
     const contextData = {
       ...panchang,
-      festival,
+      festivals,
       auspiciousActivities: muhurats
     };
     
@@ -53,10 +58,10 @@ export class AIUI {
       this.appendMessage('ai', answer);
     } catch (error) {
       console.error("AI Error:", error);
-      this.appendMessage('ai', "I'm sorry, I couldn't process your request at the moment. Please try again later.");
+      this.appendMessage('ai', t('ai_error'));
     } finally {
       this.submitBtn.disabled = false;
-      this.submitBtn.textContent = 'Ask';
+      this.submitBtn.textContent = t('ai_ask_button');
     }
   }
   
@@ -72,5 +77,11 @@ export class AIUI {
     }
     this.historyContainer.appendChild(div);
     this.historyContainer.scrollTop = this.historyContainer.scrollHeight;
+    
+    // Animate new message
+    gsap.fromTo(div, 
+      { opacity: 0, y: 20, scale: 0.95 }, 
+      { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "back.out(1.5)" }
+    );
   }
 }

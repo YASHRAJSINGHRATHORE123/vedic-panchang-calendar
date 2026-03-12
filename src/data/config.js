@@ -4,6 +4,9 @@ export const CONFIG = {
     longitude: 75.7873,
     city: "Jaipur, India"
   },
+  apiKeys: {
+    gemini: process.env.GEMINI_API_KEY || ''
+  },
   tithiNames: [
     "Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami",
     "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami",

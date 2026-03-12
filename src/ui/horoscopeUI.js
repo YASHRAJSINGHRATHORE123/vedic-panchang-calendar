@@ -1,5 +1,7 @@
 import { getDailyHoroscope } from '../engines/horoscopeEngine.js';
 import { CONFIG } from '../data/config.js';
+import { t } from '../utils/i18n.js';
+import gsap from 'gsap';
 
 export class HoroscopeUI {
   constructor(containerId) {
@@ -20,12 +22,12 @@ export class HoroscopeUI {
   render() {
     this.container.innerHTML = `
       <h3 class="text-xl font-bold mb-4 dark:text-white flex items-center gap-2">
-        <span class="text-amber-500">✨</span> Daily Horoscope
+        <span class="text-amber-500">✨</span> ${t('daily_horoscope')}
       </h3>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="rashi-grid">
         ${CONFIG.rashiNames.map((rashi, index) => `
-          <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-amber-50 dark:hover:bg-gray-700 transition" data-rashi="${rashi}">
-            <p class="font-semibold text-center dark:text-gray-200">${rashi}</p>
+          <div class="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer hover:bg-amber-50 dark:hover:bg-gray-700 transition transform hover:-translate-y-1" data-rashi="${rashi}">
+            <p class="font-semibold text-center dark:text-gray-200">${t(rashi)}</p>
           </div>
         `).join('')}
       </div>
@@ -44,11 +46,21 @@ export class HoroscopeUI {
         const textEl = document.getElementById('horoscope-text');
         
         resultDiv.classList.remove('hidden');
-        titleEl.textContent = `${rashi} - ${this.currentDate.toDateString()}`;
-        textEl.innerHTML = '<span class="animate-pulse">Consulting the stars...</span>';
+        
+        // Animate result container
+        gsap.fromTo(resultDiv, 
+          { opacity: 0, height: 0, overflow: "hidden" }, 
+          { opacity: 1, height: "auto", duration: 0.4, ease: "power2.out" }
+        );
+        
+        titleEl.textContent = `${t(rashi)} - ${this.currentDate.toDateString()}`;
+        textEl.innerHTML = `<span class="animate-pulse">${t('consulting_stars')}</span>`;
         
         const horoscope = await getDailyHoroscope(rashi, this.currentDate);
         textEl.textContent = horoscope;
+        
+        // Animate text appearance
+        gsap.fromTo(textEl, { opacity: 0 }, { opacity: 1, duration: 0.5 });
       });
     });
   }

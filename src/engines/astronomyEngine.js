@@ -100,3 +100,44 @@ export function getSunriseSunset(date, lat, lon) {
   
   return { sunrise, sunset };
 }
+
+/**
+ * Iteratively finds the exact end time of the current Tithi
+ * @param {Date} baseDate - The date/time to start searching from
+ * @param {number} currentTithiIndex - The Tithi index we are currently in
+ * @returns {Date} The exact date and time the Tithi ends
+ */
+export function getTithiEndTime(baseDate, currentTithiIndex) {
+  let searchTime = baseDate.getTime();
+  let step = 60 * 60 * 1000; // Start with 1-hour steps
+  
+  // Search forward up to 30 hours
+  for (let i = 0; i < 30; i++) {
+    searchTime += step;
+    let jd = getJulianDay(new Date(searchTime));
+    let ayanamsa = getAyanamsa(jd);
+    let sunLong = (getSunLongitude(jd) - ayanamsa + 360) % 360;
+    let moonLong = (getMoonLongitude(jd) - ayanamsa + 360) % 360;
+    
+    let diff = (moonLong - sunLong + 360) % 360;
+    let tithiIndex = Math.floor(diff / 12.0);
+    
+    if (tithiIndex !== currentTithiIndex) {
+      // We overshot. Step back 1 hour, and move forward in 1-minute steps
+      searchTime -= step;
+      step = 60 * 1000; // 1-minute steps
+      for (let j = 0; j < 60; j++) {
+        searchTime += step;
+        let jdMin = getJulianDay(new Date(searchTime));
+        let sunMin = (getSunLongitude(jdMin) - getAyanamsa(jdMin) + 360) % 360;
+        let moonMin = (getMoonLongitude(jdMin) - getAyanamsa(jdMin) + 360) % 360;
+        let diffMin = (moonMin - sunMin + 360) % 360;
+        
+        if (Math.floor(diffMin / 12.0) !== currentTithiIndex) {
+          return new Date(searchTime); // Exact minute found!
+        }
+      }
+    }
+  }
+  return null; // Fallback
+}

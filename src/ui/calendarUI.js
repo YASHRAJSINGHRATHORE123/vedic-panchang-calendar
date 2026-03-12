@@ -1,6 +1,8 @@
 import { getDaysInMonth, getFirstDayOfMonth } from '../utils/dateUtils.js';
 import { calculatePanchang } from '../engines/panchangEngine.js';
 import { detectFestival } from '../engines/festivalEngine.js';
+import { t } from '../utils/i18n.js';
+import gsap from 'gsap';
 
 export class CalendarUI {
   constructor(containerId, onDateSelect, location) {
@@ -10,10 +12,6 @@ export class CalendarUI {
     
     this.currentDate = new Date();
     this.selectedDate = new Date();
-    
-    this.monthNames = ["January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
     
     if (this.container) {
       this.render();
@@ -30,11 +28,13 @@ export class CalendarUI {
   prevMonth() {
     this.currentDate.setMonth(this.currentDate.getMonth() - 1);
     this.render();
+    gsap.from("#calendar-days > div", { opacity: 0, x: -20, duration: 0.3, stagger: 0.01, ease: "power2.out" });
   }
   
   nextMonth() {
     this.currentDate.setMonth(this.currentDate.getMonth() + 1);
     this.render();
+    gsap.from("#calendar-days > div", { opacity: 0, x: 20, duration: 0.3, stagger: 0.01, ease: "power2.out" });
   }
   
   selectDate(day) {
@@ -46,26 +46,23 @@ export class CalendarUI {
   }
   
   render() {
+    const months = t('months');
+    const daysShort = t('days_short');
+    
     this.container.innerHTML = `
       <div class="calendar-header flex justify-between items-center mb-4">
         <button id="prev-month" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-          &larr; Prev
+          &larr; ${t('prev')}
         </button>
         <h2 class="text-xl font-bold dark:text-white">
-          ${this.monthNames[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}
+          ${months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}
         </h2>
         <button id="next-month" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-          Next &rarr;
+          ${t('next')} &rarr;
         </button>
       </div>
       <div class="calendar-grid grid grid-cols-7 gap-1 text-center mb-2">
-        <div class="font-semibold text-gray-500 text-sm py-2">Sun</div>
-        <div class="font-semibold text-gray-500 text-sm py-2">Mon</div>
-        <div class="font-semibold text-gray-500 text-sm py-2">Tue</div>
-        <div class="font-semibold text-gray-500 text-sm py-2">Wed</div>
-        <div class="font-semibold text-gray-500 text-sm py-2">Thu</div>
-        <div class="font-semibold text-gray-500 text-sm py-2">Fri</div>
-        <div class="font-semibold text-gray-500 text-sm py-2">Sat</div>
+        ${daysShort.map(day => `<div class="font-semibold text-gray-500 text-sm py-2">${day}</div>`).join('')}
       </div>
       <div id="calendar-days" class="grid grid-cols-7 gap-1 text-center"></div>
     `;
@@ -112,7 +109,7 @@ export class CalendarUI {
       
       // Calculate basic panchang to check for festivals
       const panchang = calculatePanchang(date, this.location.latitude, this.location.longitude);
-      const festival = detectFestival(panchang, date);
+      const festivals = detectFestival(panchang, date);
       
       let classes = 'p-2 rounded-lg cursor-pointer transition relative min-h-[60px] flex flex-col items-center justify-center border border-transparent ';
       
@@ -128,10 +125,10 @@ export class CalendarUI {
       
       let innerHTML = `<span>${day}</span>`;
       
-      if (festival) {
+      if (festivals && festivals.length > 0) {
         innerHTML += `<span class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-red-500"></span>`;
         if (isSelected) {
-           innerHTML += `<span class="text-[10px] leading-tight mt-1 truncate w-full px-1">${festival}</span>`;
+           innerHTML += `<span class="text-[10px] leading-tight mt-1 truncate w-full px-1">${t(festivals[0])}</span>`;
         }
       }
       

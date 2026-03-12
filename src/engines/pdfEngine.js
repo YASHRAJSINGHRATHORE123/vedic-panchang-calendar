@@ -1,6 +1,7 @@
 import { calculatePanchang } from '../engines/panchangEngine.js';
 import { detectFestival } from '../engines/festivalEngine.js';
 import { formatDate } from '../utils/dateUtils.js';
+import { t } from '../utils/i18n.js';
 
 export async function generateYearlyPanchangPDF(year, location) {
   // We'll use jspdf which should be available globally via CDN
@@ -13,7 +14,7 @@ export async function generateYearlyPanchangPDF(year, location) {
   const doc = new jsPDF();
   
   doc.setFontSize(20);
-  doc.text(`Panchang ${year}`, 105, 20, { align: 'center' });
+  doc.text(`${t('app_title')} ${year}`, 105, 20, { align: 'center' });
   doc.setFontSize(12);
   doc.text(`Location: ${location.city}`, 105, 30, { align: 'center' });
   
@@ -26,21 +27,10 @@ export async function generateYearlyPanchangPDF(year, location) {
       if (date.getMonth() !== month) break; // Skip invalid dates like Feb 30
       
       const panchang = calculatePanchang(date, location.latitude, location.longitude);
-      const festival = detectFestival(panchang, date);
+      const festivals = detectFestival(panchang, date);
       
-      let event = null;
-      if (festival) {
-        event = festival;
-      } else if (panchang.tithi.index === 10 || panchang.tithi.index === 25) {
-        event = "Ekadashi";
-      } else if (panchang.tithi.index === 14) {
-        event = "Purnima";
-      } else if (panchang.tithi.index === 29) {
-        event = "Amavasya";
-      }
-      
-      if (event) {
-        importantDates.push([formatDate(date), event, panchang.tithi.name]);
+      if (festivals && festivals.length > 0) {
+        importantDates.push([formatDate(date), festivals.map(f => t(f)).join(', '), t(panchang.tithi.name)]);
       }
     }
   }
@@ -49,7 +39,7 @@ export async function generateYearlyPanchangPDF(year, location) {
   if (doc.autoTable) {
     doc.autoTable({
       startY: 40,
-      head: [['Date', 'Event', 'Tithi']],
+      head: [['Date', t('festival'), t('tithi')]],
       body: importantDates,
       theme: 'striped',
       headStyles: { fillColor: [245, 158, 11] } // Amber 500
